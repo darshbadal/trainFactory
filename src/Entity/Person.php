@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -80,6 +82,22 @@ class Person
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $plaats;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\lesson", mappedBy="person", orphanRemoval=true)
+     */
+    private $lesson;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\registration", mappedBy="person", orphanRemoval=true)
+     */
+    private $registration;
+
+    public function __construct()
+    {
+        $this->lesson = new ArrayCollection();
+        $this->registration = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -238,6 +256,68 @@ class Person
     public function setPlaats(?string $plaats): self
     {
         $this->plaats = $plaats;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|lesson[]
+     */
+    public function getLesson(): Collection
+    {
+        return $this->lesson;
+    }
+
+    public function addLesson(lesson $lesson): self
+    {
+        if (!$this->lesson->contains($lesson)) {
+            $this->lesson[] = $lesson;
+            $lesson->setPerson($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLesson(lesson $lesson): self
+    {
+        if ($this->lesson->contains($lesson)) {
+            $this->lesson->removeElement($lesson);
+            // set the owning side to null (unless already changed)
+            if ($lesson->getPerson() === $this) {
+                $lesson->setPerson(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|registration[]
+     */
+    public function getRegistration(): Collection
+    {
+        return $this->registration;
+    }
+
+    public function addRegistration(registration $registration): self
+    {
+        if (!$this->registration->contains($registration)) {
+            $this->registration[] = $registration;
+            $registration->setPerson($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRegistration(registration $registration): self
+    {
+        if ($this->registration->contains($registration)) {
+            $this->registration->removeElement($registration);
+            // set the owning side to null (unless already changed)
+            if ($registration->getPerson() === $this) {
+                $registration->setPerson(null);
+            }
+        }
 
         return $this;
     }

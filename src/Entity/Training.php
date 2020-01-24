@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -35,6 +37,16 @@ class Training
      * @ORM\Column(type="decimal", precision=5, scale=2, nullable=true)
      */
     private $costs;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\lesson", mappedBy="lesson", orphanRemoval=true)
+     */
+    private $lesson;
+
+    public function __construct()
+    {
+        $this->lesson = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -85,6 +97,37 @@ class Training
     public function setCosts(?string $costs): self
     {
         $this->costs = $costs;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|lesson[]
+     */
+    public function getLesson(): Collection
+    {
+        return $this->lesson;
+    }
+
+    public function addLesson(lesson $lesson): self
+    {
+        if (!$this->lesson->contains($lesson)) {
+            $this->lesson[] = $lesson;
+            $lesson->setLesson($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLesson(lesson $lesson): self
+    {
+        if ($this->lesson->contains($lesson)) {
+            $this->lesson->removeElement($lesson);
+            // set the owning side to null (unless already changed)
+            if ($lesson->getLesson() === $this) {
+                $lesson->setLesson(null);
+            }
+        }
 
         return $this;
     }
